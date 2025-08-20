@@ -1,0 +1,134 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDP Profile</title>
+    <style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+          padding: 20px;
+        }
+        #main-box {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+        }
+        .container {
+          width: 45%;
+          padding-left: 50px;
+        }
+        h2 {
+          margin-bottom: 10px; 
+          display: block;
+        }
+        .input-data {
+         width: 100%; padding-bottom: 10px; font-size: 14px;
+        }
+        .profile{
+            padding-bottom: 10px;
+        }
+
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1 style="padding-left: 50px; padding-top: 60px;">Profile Card Generator</h1>
+      <div id="main-box">
+
+        <div class="container">
+          <h2>Enter Your Information</h2>
+
+           <div class="input-data">
+          <label for="name">Name:</label>
+          <input type="text" id="name" placeholder="Enter name" />
+            </div> 
+
+            <div class="input-data">
+          <label for="job">Job Title:</label>
+          <input type="text" id="job" placeholder="Enter job title" />
+            </div>
+
+            <div class="input-data">
+          <label for="bio">Bio:</label>
+          <textarea id="bio" rows="3"></textarea>
+            </div>
+
+<div class="input-data">
+          <label for="color">Favorite Color:</label>
+          <input type="color" id="color" value="#0000ff" />
+</div>
+          <button onclick="generateCard()">Generate Profile Card</button>
+
+          <div class="preview">
+            <h3>Real-Time Preview</h3>
+            <p id="previewName">Name:</p>
+            <p id="previewJob">Job:</p>
+          </div>
+        </div>
+
+        <div class="container">
+          <h2>Your Profile Card</h2>
+            <div class="profile-card" style="border: 4px solid #ffffff; padding: 20px; border-radius: 10px; width: 60%;">
+
+                <h3 class="profile" id="cardName" style="font-size: 26px;"></h3>
+
+                <p class="profile" id="cardJob"></p>
+
+                <p class="profile" id="cardBio"></p>
+
+                 <button onclick="like()" style="width: 75px; height: 35px; background-color: rgb(155, 40, 40); color: #ffffff;">❤️ Like</button>
+
+                <p class="profile" id="likeCount"></p>
+            </div>
+            
+
+
+
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    let likeCount = 0;
+    document.getElementById("name").addEventListener("input", function() {
+      document.getElementById("previewName").innerText = "Name: " + this.value;
+    });
+
+    document.getElementById("job").addEventListener("input", function() {
+      document.getElementById("previewJob").innerText = "Job: " + this.value;
+    });
+
+    function generateCard() {
+      likeCount = 0;
+      const likeCountElement = document.getElementById("likeCount");
+      likeCountElement.innerText = `${likeCount} likes`;
+
+      const name = document.getElementById("name").value;
+      const job = document.getElementById("job").value;
+      const bio = document.getElementById("bio").value;
+      const color = document.getElementById("color").value;
+
+
+      document.getElementById("cardName").innerText = name;
+      document.getElementById("cardJob").innerText = job;
+      document.getElementById("cardBio").innerText = bio;
+
+      const card = document.querySelector(".profile-card");
+      card.style.borderColor = color;
+    }
+
+    function like(){
+      if(likeCount == 0){
+          likeCount = 1;
+      }
+      else{
+        likeCount = 0
+      }
+        
+      const likeCountElement = document.getElementById("likeCount");
+      likeCountElement.innerText = `${likeCount} likes`;
+    };
+
+  </script>
+</html>
