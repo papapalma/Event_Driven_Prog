@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      color: #fff;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .controls {
+      max-width: 650px;
+      margin: 0 auto 30px auto;
+      background: rgba(255,255,255,0.25);
+      padding: 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .controls input,
+    .controls select,
+    .controls button {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .controls input,
+    .controls select {
+      background: rgba(255,255,255,0.7);
+    }
+
+    .controls input:focus,
+    .controls select:focus {
+      box-shadow: 0 0 8px #8e44ad;
+    }
+
+    .controls button {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .controls button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .task-manager {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 280px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 15px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .column h2 {
+      margin: 0 0 15px 0;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed rgba(255,255,255,0.6);
+      color: #fff;
+    }
+
+    .task {
+      background: rgba(255,255,255,0.8);
+      margin: 10px 0;
+      padding: 14px;
+      border-radius: 12px;
+      cursor: grab;
+      border-left: 6px solid #ccc;
+      font-size: 15px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .task:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .low {
+      border-left-color: #2ecc71; /* green */
+      box-shadow: 0 0 8px rgba(46,204,113,0.6);
+    }
+    .medium {
+      border-left-color: #f39c12; /* orange */
+      box-shadow: 0 0 8px rgba(243,156,18,0.6);
+    }
+    .high {
+      border-left-color: #e74c3c; /* red */
+      box-shadow: 0 0 8px rgba(231,76,60,0.6);
+    }
+
+    .task:active {
+      cursor: grabbing;
+    }
+
+    .drag-over {
+  background: rgba(255,255,255,0.4) !important;
+  box-shadow: 0 0 15px rgba(108,92,231,0.8);
+  border: none;
+  transition: box-shadow 0.3s ease;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Task Manager</h1>
+
+  <div class="controls">
+    <input type="text" id="newTaskInput" placeholder="✍️ New task...">
+    <select id="prioritySelect">
+      <option value="low">🟢 Low Priority</option>
+      <option value="medium">🟠 Medium Priority</option>
+      <option value="high">🔴 High Priority</option>
+    </select>
+    <button onclick="addTask()">➕ Add Task</button>
+    <input type="text" id="searchInput" placeholder="🔍 Search tasks..." onkeyup="searchTasks()">
+    <button onclick="clearSearch()">❌ Clear Search</button>
+  </div>
+
+  <div class="task-manager">
+    <div class="column todo" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2>📝 To Do</h2>
+      <div class="task medium" draggable="true" ondragstart="drag(event)">Review code changes</div>
+    </div>
+
+    <div class="column inprogress" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2>⚡ In Progress</h2>
+      <div class="task low" draggable="true" ondragstart="drag(event)">Complete project proposal</div>
+      <div class="task high" draggable="true" ondragstart="drag(event)">Update documentation</div>
+    </div>
+
+    <div class="column done" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2>✅ Done</h2>
+      <div class="task high" draggable="true" ondragstart="drag(event)">Fix critical bug</div>
+      <div class="task low" draggable="true" ondragstart="drag(event)">Organize team meeting</div>
+    </div>
+  </div>
+
+  <script>
+    let draggedTask = null;
+
+    function drag(event) {
+      draggedTask = event.target;
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add("drag-over");
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.remove("drag-over");
+      if (draggedTask) {
+        event.currentTarget.appendChild(draggedTask);
+        draggedTask = null;
+      }
+    }
+
+    function addTask() {
+      let input = document.getElementById("newTaskInput");
+      let taskText = input.value.trim();
+      let priority = document.getElementById("prioritySelect").value;
+
+      if (taskText === "") return;
+
+      let newTask = document.createElement("div");
+      newTask.className = "task " + priority;
+      newTask.draggable = true;
+      newTask.ondragstart = drag;
+      newTask.textContent = taskText;
+
+      document.querySelector(".todo").appendChild(newTask);
+      input.value = "";
+    }
+
+    function searchTasks() {
+      let filter = document.getElementById("searchInput").value.toLowerCase();
+      let tasks = document.querySelectorAll(".task");
+      tasks.forEach(task => {
+        task.style.display = task.textContent.toLowerCase().includes(filter) ? "block" : "none";
+      });
+    }
+
+    function clearSearch() {
+      document.getElementById("searchInput").value = "";
+      searchTasks();
+    }
+  </script>
+</body>
+</html>
