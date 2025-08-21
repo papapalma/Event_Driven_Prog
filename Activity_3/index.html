@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Task Manager</title>
+  <style>
+
+    .task-manager {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .column {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      min-height: 200px;
+    }
+
+    .column h2 {
+      margin-top: 0;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+   
+
+    .task {
+      background: #f3f3f3;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: grab;
+      border-left: 5px solid #ccc;
+    }
+
+    .low {
+      border-left-color: green;
+    }
+    .medium {
+      border-left-color: orange;
+    }
+    .high {
+      border-left-color: red;
+    }
+
+    .task:active {
+      cursor: grabbing;
+    }
+
+
+
+
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; margin-bottom: 20px;">Interactive Task Manager</h1>
+
+  <div class="controls">
+
+    <input type="text" id="newTaskInput" placeholder="New task.." style="display: block; margin-bottom: 20px; width: 100%;">
+
+    <select style="display: block; margin-bottom: 20px; width: 100%;" id="prioritySelect" >
+      <option value="low">Low Priority</option>
+      <option value="medium">Medium Priority</option>
+      <option value="high">High Priority</option>
+    </select>
+
+    <button style="display: block; margin-bottom: 20px; "  onclick="addTask()" >Add Task</button>
+
+    <input type="text" id="searchInput" placeholder="Search tasks.." onkeyup="searchTasks()" style="display: block; margin-bottom: 20px; width: 100%;">
+
+    <button style="display: block; margin-bottom: 20px;" onclick="clearSearch()">Clear</button>
+
+  </div>
+
+  <div class="task-manager">
+    <div class="column todo" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2 style="border-bottom: 2px solid gray;">To Do</h2>
+      <div class="task medium" draggable="true" ondragstart="drag(event)">Review code changes</div>
+    </div>
+
+    <div class="column inprogress" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2 style="border-bottom: 2px solid gray;">In Progress</h2>
+      <div class="task low" draggable="true" ondragstart="drag(event)">Complete project proposal</div>
+      <div class="task high" draggable="true" ondragstart="drag(event)">Update documentation</div>
+    </div>
+
+    <div class="column done" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h2 style="border-bottom: 2px solid gray;">Done</h2>
+      <div class="task high" draggable="true" ondragstart="drag(event)">Fix critical bug</div>
+      <div class="task low" draggable="true" ondragstart="drag(event)">Organize team meeting</div>
+    </div>
+  </div>
+
+  <script>
+    let draggedTask = null;
+
+    function drag(event) {
+      draggedTask = event.target;
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add("drag-over");
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.remove("drag-over");
+      if (draggedTask) {
+        event.currentTarget.appendChild(draggedTask);
+        draggedTask = null;
+      }
+    }
+
+    function addTask() {
+      let input = document.getElementById("newTaskInput");
+      let taskText = input.value.trim();
+      let priority = document.getElementById("prioritySelect").value;
+
+      if (taskText === "") return;
+
+      let newTask = document.createElement("div");
+      newTask.className = "task " + priority;
+      newTask.draggable = true;
+      newTask.ondragstart = drag;
+      newTask.textContent = taskText;
+
+      document.querySelector(".todo").appendChild(newTask);
+      input.value = "";
+    }
+
+    function searchTasks() {
+      let filter = document.getElementById("searchInput").value.toLowerCase();
+      let tasks = document.querySelectorAll(".task");
+      tasks.forEach(task => {
+        if (task.textContent.toLowerCase().includes(filter)) {
+          task.style.display = "block";
+        } else {
+          task.style.display = "none";
+        }
+      });
+    }
+
+    function clearSearch() {
+      document.getElementById("searchInput").value = "";
+      searchTasks();
+    }
+  </script>
+</body>
+</html>
