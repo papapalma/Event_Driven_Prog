@@ -3,176 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager</title>
+  <title>Interactive Task Manager</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
     body {
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-      color: #333;
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f0f0;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      font-size: 32px;
-      color: #fff;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      color: #333;
     }
 
-    .controls {
-      max-width: 650px;
-      margin: 0 auto 30px auto;
-      background: rgba(255,255,255,0.25);
-      padding: 20px;
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    .inputData {
+      display: flex;
+      margin-bottom: 20px;
+      text-align: center;
+      justify-content: center;
     }
 
-    .controls input,
-    .controls select,
-    .controls button {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 12px;
-      font-size: 15px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .controls input,
-    .controls select {
-      background: rgba(255,255,255,0.7);
-    }
-
-    .controls input:focus,
-    .controls select:focus {
-      box-shadow: 0 0 8px #8e44ad;
-    }
-
-    .controls button {
-      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      letter-spacing: 1px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .controls button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    input, select, button {
+      margin: 5px;
+      padding: 5px;
     }
 
     .task-manager {
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
+      justify-content: space-around;
     }
 
     .column {
-      flex: 1;
-      min-width: 280px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 20px;
-      padding: 15px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      min-height: 350px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .column h2 {
-      margin: 0 0 15px 0;
-      font-size: 20px;
-      font-weight: 600;
-      text-align: center;
-      padding-bottom: 10px;
-      border-bottom: 2px dashed rgba(255,255,255,0.6);
-      color: #fff;
+      background-color: white;
+      border: 2px solid #ccc;
+      padding: 10px;
+      width: 250px;
+      min-height: 300px;
     }
 
     .task {
-      background: rgba(255,255,255,0.8);
-      margin: 10px 0;
-      padding: 14px;
-      border-radius: 12px;
-      cursor: grab;
-      border-left: 6px solid #ccc;
-      font-size: 15px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .task:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      margin: 5px 0;
+      padding: 10px;
+      cursor: move;
     }
 
     .low {
-      border-left-color: #2ecc71; /* green */
-      box-shadow: 0 0 8px rgba(46,204,113,0.6);
-    }
-    .medium {
-      border-left-color: #f39c12; /* orange */
-      box-shadow: 0 0 8px rgba(243,156,18,0.6);
-    }
-    .high {
-      border-left-color: #e74c3c; /* red */
-      box-shadow: 0 0 8px rgba(231,76,60,0.6);
+      border-left: 5px solid green;
     }
 
-    .task:active {
-      cursor: grabbing;
+    .medium {
+      border-left: 5px solid orange;
+    }
+
+    .high {
+      border-left: 5px solid red;
     }
 
     .drag-over {
-  background: rgba(255,255,255,0.4) !important;
-  box-shadow: 0 0 15px rgba(108,92,231,0.8);
-  border: none;
-  transition: box-shadow 0.3s ease;
-}
-
+      background-color: #e6e6e6;
+    }
   </style>
 </head>
 <body>
-  <h1>Task Manager</h1>
+  <h1>Simple Task Manager</h1>
 
-  <div class="controls">
-    <input type="text" id="newTaskInput" placeholder="✍️ New task...">
+  <div class="inputData">
+    <input type="text" id="newTaskInput" placeholder="Enter new task">
     <select id="prioritySelect">
-      <option value="low">🟢 Low Priority</option>
-      <option value="medium">🟠 Medium Priority</option>
-      <option value="high">🔴 High Priority</option>
+      <option value="low">Low Priority</option>
+      <option value="medium">Medium Priority</option>
+      <option value="high">High Priority</option>
     </select>
-    <button onclick="addTask()">➕ Add Task</button>
-    <input type="text" id="searchInput" placeholder="🔍 Search tasks..." onkeyup="searchTasks()">
-    <button onclick="clearSearch()">❌ Clear Search</button>
+    <button onclick="addTask()">Add Task</button>
+    <br>
+    <input type="text" id="searchInput" placeholder="Search tasks" onkeyup="searchTasks()">
+    <button onclick="clearSearch()">Clear</button>
   </div>
 
   <div class="task-manager">
     <div class="column todo" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h2>📝 To Do</h2>
-      <div class="task medium" draggable="true" ondragstart="drag(event)">Review code changes</div>
+      <h2>To Do</h2>
+      <div class="task medium" draggable="true" ondragstart="drag(event)">Review code</div>
     </div>
 
     <div class="column inprogress" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h2>⚡ In Progress</h2>
-      <div class="task low" draggable="true" ondragstart="drag(event)">Complete project proposal</div>
-      <div class="task high" draggable="true" ondragstart="drag(event)">Update documentation</div>
+      <h2>In Progress</h2>
+      <div class="task high" draggable="true" ondragstart="drag(event)">Fix bug</div>
     </div>
 
     <div class="column done" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h2>✅ Done</h2>
-      <div class="task high" draggable="true" ondragstart="drag(event)">Fix critical bug</div>
-      <div class="task low" draggable="true" ondragstart="drag(event)">Organize team meeting</div>
+      <h2>Done</h2>
+      <div class="task low" draggable="true" ondragstart="drag(event)">Team meeting</div>
     </div>
   </div>
 
@@ -199,7 +122,7 @@
 
     function addTask() {
       let input = document.getElementById("newTaskInput");
-      let taskText = input.value.trim();
+      let taskText = input.value;
       let priority = document.getElementById("prioritySelect").value;
 
       if (taskText === "") return;
@@ -215,10 +138,15 @@
     }
 
     function searchTasks() {
-      let filter = document.getElementById("searchInput").value.toLowerCase();
+      let search = document.getElementById("searchInput").value.toLowerCase();
       let tasks = document.querySelectorAll(".task");
+      
       tasks.forEach(task => {
-        task.style.display = task.textContent.toLowerCase().includes(filter) ? "block" : "none";
+        if (task.textContent.toLowerCase().includes(search)) {
+          task.style.display = "block";
+        } else {
+          task.style.display = "none";
+        }
       });
     }
 
