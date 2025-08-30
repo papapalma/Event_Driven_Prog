@@ -1,0 +1,324 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Modal Form</title>
+    <style>
+      .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        width: 300px;
+      }
+
+      .modal.active {
+        display: block;
+      }
+
+      .modal.error {
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        border: #ff0000 1px solid;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .overlay.active {
+        display: block;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      button {
+        padding: 8px 16px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .shake {
+        animation: shake 0.5s;
+        animation-iteration-count: 1;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translate(-50%, -50%);
+        }
+        25% {
+          transform: translate(calc(-50% - 5px), -50%);
+        }
+        50% {
+          transform: translate(calc(-50% + 5px), -50%);
+        }
+        75% {
+          transform: translate(calc(-50% - 5px), -50%);
+        }
+      }
+
+      .error-field {
+        border-color: #ff0000;
+        background-color: #fff0f0;
+      }
+
+      #specifyGender {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- New Result Form -->
+    <div class="result" id="resultForm">
+      <h2>Submitted Information</h2>
+      <form>
+        <div class="form-group">
+          <label>Name:</label>
+          <input type="text" id="resultName" readonly />
+        </div>
+        <div class="form-group">
+          <label>Age:</label>
+          <input type="text" id="resultAge" readonly />
+        </div>
+        <div class="form-group">
+          <label>Gender:</label>
+          <input type="text" id="resultGender" readonly />
+        </div>
+      </form>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="myModal">
+      <h2>Personal Information</h2>
+      <form id="personForm">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="age">Age:</label>
+          <input type="number" id="age" name="age" required />
+        </div>
+        <div class="form-group">
+          <label for="gender">Gender:</label>
+          <select
+            id="gender"
+            name="gender"
+            required
+            onchange="toggleSpecifyGender()"
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" id="specifyGender">
+          <label for="specifyGenderInput">Please Specify:</label>
+          <input
+            type="text"
+            id="specifyGenderInput"
+            name="specifyGenderInput"
+          />
+        </div>
+        <div class="form-group">
+          <button type="button" id="show" onclick="showData()">
+            Show Data
+          </button>
+          <button type="button" onclick="closeModal()">Close</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      window.onload = function () {
+        const savedData = localStorage.getItem("personalInfo");
+        if (savedData) {
+          const { name, age, gender } = JSON.parse(savedData);
+          document.getElementById("resultName").value = name;
+          document.getElementById("resultAge").value = age;
+          document.getElementById("resultGender").value = gender;
+        }
+
+        document.addEventListener("keydown", function (event) {
+          if (event.ctrlKey && event.key.toLowerCase() === "n") {
+            event.preventDefault();
+            event.stopPropagation();
+            openModal();
+            return false;
+          }
+
+          if (event.altKey && event.key === "1") {
+            event.preventDefault();
+            event.stopPropagation();
+            clearAllFields();
+            document.getElementById("name").focus();
+            return false;
+          }
+
+          if (event.key === "Escape") {
+            const activeElement = document.activeElement;
+            if (
+              activeElement &&
+              (activeElement.tagName === "INPUT" ||
+                activeElement.tagName === "SELECT")
+            ) {
+              if (activeElement.tagName === "SELECT") {
+                activeElement.selectedIndex = 0;
+              } else {
+                activeElement.value = "";
+              }
+            } else {
+            }
+          }
+
+          if (event.key === "Enter" && !event.shiftKey) {
+            const inputs = ["name", "age", "gender", "show"];
+            const currentElement = document.activeElement;
+            const currentIndex = inputs.indexOf(currentElement.id);
+
+            if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+              event.preventDefault();
+              document.getElementById(inputs[currentIndex + 1]).focus();
+            }
+          }
+        });
+
+        ["name", "age", "gender"].forEach((fieldId) => {
+          document
+            .getElementById(fieldId)
+            .addEventListener("input", function () {
+              const modal = document.getElementById("myModal");
+              if (this.value) {
+                this.classList.remove("error-field");
+                const allFilled = ["name", "age", "gender"].every(
+                  (id) => document.getElementById(id).value
+                );
+                if (allFilled) {
+                  modal.classList.remove("error");
+                }
+              }
+            });
+        });
+      };
+
+      function clearAllFields() {
+        document.getElementById("name").value = "";
+        document.getElementById("age").value = "";
+        document.getElementById("gender").selectedIndex = 0;
+        document.getElementById("specifyGenderInput").value = "";
+      }
+
+      function openModal() {
+        document.getElementById("myModal").classList.add("active");
+        document.getElementById("overlay").classList.add("active");
+        document.getElementById("name").focus();
+      }
+      function closeModal() {
+        document.getElementById("myModal").classList.remove("active");
+        document.getElementById("overlay").classList.remove("active");
+      }
+
+      function toggleSpecifyGender() {
+        const gender = document.getElementById("gender").value;
+        const specifyGenderDiv = document.getElementById("specifyGender");
+        if (gender === "other") {
+          specifyGenderDiv.style.display = "block";
+          document.getElementById("specifyGenderInput").focus();
+        } else {
+          specifyGenderDiv.style.display = "none";
+        }
+      }
+
+      function closeResult() {
+        document.getElementById("resultName").value = "";
+        document.getElementById("resultAge").value = "";
+        document.getElementById("resultGender").value = "";
+      }
+
+      function showData() {
+        const name = document.getElementById("name");
+        const age = document.getElementById("age");
+        const gender = document.getElementById("gender");
+        const specifyGenderInput =
+          document.getElementById("specifyGenderInput");
+        const modal = document.getElementById("myModal");
+
+        [name, age, gender, specifyGenderInput].forEach((field) =>
+          field.classList.remove("error-field")
+        );
+        modal.classList.remove("error");
+
+        if (!name.value || !age.value || !gender.value) {
+          modal.classList.add("shake", "error");
+          setTimeout(() => modal.classList.remove("shake"), 500);
+
+          if (!name.value) {
+            name.classList.add("error-field");
+            name.focus();
+          } else if (!age.value) {
+            age.classList.add("error-field");
+            age.focus();
+          } else if (!gender.value) {
+            gender.classList.add("error-field");
+            gender.focus();
+          }
+          return;
+        }
+
+        let genderDisplay = gender.value;
+        if (gender.value === "other") {
+          if (!specifyGenderInput.value) {
+            specifyGenderInput.classList.add("error-field");
+            specifyGenderInput.focus();
+            modal.classList.add("shake", "error");
+            setTimeout(() => modal.classList.remove("shake"), 500);
+            return;
+          }
+          genderDisplay = specifyGenderInput.value;
+        }
+        document.getElementById("resultName").value = name.value;
+        document.getElementById("resultAge").value = age.value;
+        document.getElementById("resultGender").value = genderDisplay;
+
+        const userData = {
+          name: name.value,
+          age: age.value,
+          gender: genderDisplay,
+        };
+        localStorage.setItem("personalInfo", JSON.stringify(userData));
+
+        clearAllFields();
+        closeModal();
+      }
+    </script>
+  </body>
+</html>
